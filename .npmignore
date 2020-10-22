@@ -1,0 +1,10 @@
+node_modules
+*.log*
+/src
+/tsconfig*
+/tslint*
+/index.ts
+.prettierignore
+.vscode
+*.tgz
+/coverage

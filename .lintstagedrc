@@ -1,0 +1,9 @@
+{
+  "*.{js,ts,tsx,json,css,scss,less,yml}": [
+    "npx prettier --write",
+  ],
+  "*.md": [
+    "npx doctoc",
+    "npx prettier --write",
+  ]
+}
