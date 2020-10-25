@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises'
+import { readFile, lstat } from 'fs/promises'
 import { resolve } from 'path'
 
 interface GetFileOptions {
@@ -11,6 +11,11 @@ export class SourceCodeExplorer {
   public async getFile(relativePath: string, { encoding }: GetFileOptions = {}): Promise<string | undefined> {
     try {
       const fileFullPath = resolve(this.repoPath, relativePath)
+
+      const stats = await lstat(fileFullPath)
+      if (!stats.isFile()) {
+        return undefined
+      }
 
       const content = await readFile(fileFullPath, { encoding: encoding ?? 'utf-8', flag: 'r' })
       return content
