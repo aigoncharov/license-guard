@@ -2,6 +2,7 @@ import { cosmiconfig } from 'cosmiconfig'
 import { isAbsolute, resolve } from 'path'
 
 import { defaultOutFile, moduleName as moduleNameDefault } from './consts'
+import { SourceCodeExplorer } from './source-code-explorer'
 
 interface ProjectPath {
   platform: string
@@ -40,7 +41,7 @@ interface LicenseResolverProps {
   raw: object
   descriptor: PackageDescriptor
   sourceURL?: string
-  getSource?: () => Promise<string>
+  getSource?: () => Promise<SourceCodeExplorer>
 }
 export type LicenseResolver = LicenseDescriptor | ((props: LicenseResolverProps) => LicenseDescriptor | Promise<LicenseDescriptor>)
 export interface LicenseGuardConfig {

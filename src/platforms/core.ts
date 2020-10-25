@@ -1,3 +1,4 @@
+import { SourceCodeExplorer } from 'src/source-code-explorer'
 import { LicenseResolver, ModuleConfig, PackageDescriptor, LicenseDescriptor } from '../config'
 import { LicenseManager } from '../license-manager'
 import { SourceCodeManager } from '../source-code-manager'
@@ -70,7 +71,7 @@ export abstract class AbstractPlatform<P extends object> {
   protected abstract getPackageDevOnly(platformPackage: P): boolean
   protected abstract getPackageLocalPath(platformPackage: P): string
   protected abstract getLicenseFromLocalPackage(platformPackage: P): LicenseDescriptor | undefined
-  protected abstract async getLicenseFromSource(path: string): Promise<LicenseDescriptor | undefined>
+  protected abstract async getLicenseFromSource(sourceCodeExplorer: SourceCodeExplorer): Promise<LicenseDescriptor | undefined>
 
   private async getPlatformPackageLicenseDefault(platformPackage: P): Promise<LicenseDescriptor | undefined> {
     const localLicense = this.getLicenseFromLocalPackage(platformPackage)
@@ -86,7 +87,7 @@ export abstract class AbstractPlatform<P extends object> {
     const { version } = this.getPackageDescriptor(platformPackage)
     const sourceLocalPath = await this.sourceCodeManager.getSourceCode(sourceURL, version)
 
-    const licenseFromSource = await this.getLicenseFromSource(sourceLocalPath)
+    const licenseFromSource = await this.getLicenseFromSource(new SourceCodeExplorer(sourceLocalPath))
     return licenseFromSource
   }
 
@@ -97,9 +98,12 @@ export abstract class AbstractPlatform<P extends object> {
 
     const sourceURL = this.getPackageSourceURL(platformPackage)
     const descriptor = this.getPackageDescriptor(platformPackage)
-    let getSource: (() => Promise<string>) | undefined
+    let getSource: (() => Promise<SourceCodeExplorer>) | undefined
     if (sourceURL && this.sourceCodeManager.canHandleURL(sourceURL)) {
-      getSource = () => this.sourceCodeManager.getSourceCode(sourceURL, descriptor.version)
+      getSource = async () => {
+        const sourceLocalPath = await this.sourceCodeManager.getSourceCode(sourceURL, descriptor.version)
+        return new SourceCodeExplorer(sourceLocalPath)
+      }
     }
 
     const license = await override({
